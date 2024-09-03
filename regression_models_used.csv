@@ -1,0 +1,5 @@
+,Model,Root Mean Squared Error
+0,RandomForestRegressor,78724.65873
+1,LGBMRegressor,72928.2805
+2,XGBRegressor,75374.25926
+3,CatBoostRegressor,73540.49506

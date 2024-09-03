@@ -39,19 +39,19 @@ def classify_models(model, X, y):
 # Function to evaluate regression models
 def regress_models(model, X, y):
     kf = KFold(n_splits=5, shuffle=True, random_state=42)
-    mse_scores = []
+    rmse_scores = []
 
-    for train_index, test_index in kf.split(X):
+    for train_index, test_index in kf.split(X, y):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-
+        
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         
-        mse_scores.append(mean_squared_error(y_test, y_pred))
+        rmse_scores.append(np.sqrt(mean_squared_error(y_test, y_pred)))
     
     model_name = model.__class__.__name__
-    return model_name, round(np.mean(mse_scores), 5)
+    return model_name, round(np.mean(rmse_scores), 5)
 
 # Main function that can be run as standalone or imported as a module
 def main(X, y):
@@ -60,18 +60,6 @@ def main(X, y):
 
     if problem_type == 'classification':
         classifiers = [
-            DecisionTreeClassifier(),
-            RandomForestClassifier(),
-            GradientBoostingClassifier(),
-            BaggingClassifier(),
-            AdaBoostClassifier(),
-            ExtraTreesClassifier(),
-            MLPClassifier(),
-            KNeighborsClassifier(),
-            LogisticRegression(),
-            RidgeClassifier(),
-            RidgeClassifierCV(),
-            SGDClassifier(),
             LGBMClassifier(),
             XgbClassifier(),
             CatBoostClassifier(silent=True)
@@ -85,17 +73,16 @@ def main(X, y):
     
     elif problem_type == 'regression':
         regressors = [
-            DecisionTreeRegressor(),
             RandomForestRegressor(),
-            GradientBoostingRegressor(),
-            BaggingRegressor(),
-            AdaBoostRegressor(),
-            ExtraTreesRegressor(),
-            MLPRegressor(),
-            KNeighborsRegressor(),
-            Ridge(),
-            SGDRegressor(),
-            ElasticNet(),
+            # GradientBoostingRegressor(),
+            # BaggingRegressor(),
+            # AdaBoostRegressor(),
+            # ExtraTreesRegressor(),
+            # MLPRegressor(),
+            # KNeighborsRegressor(),
+            # Ridge(),
+            # SGDRegressor(),
+            # ElasticNet(),
             LGBMRegressor(),
             XgbRegressor(),
             CatBoostRegressor(silent=True)
@@ -105,10 +92,12 @@ def main(X, y):
         for reg in regressors:
             scores.append(regress_models(reg, X, y))
 
-        results_df = pd.DataFrame(scores, columns=['Model', 'Mean Squared Error'])
+        results_df = pd.DataFrame(scores, columns=['Model', 'Root Mean Squared Error'])
     
     else:
         raise ValueError("Invalid input. Please enter 'classification' or 'regression'.")
+    
+    results_df.to_csv("regression_models_used.csv")
 
     # Display results
     print(results_df)
